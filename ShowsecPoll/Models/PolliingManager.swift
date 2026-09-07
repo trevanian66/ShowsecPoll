@@ -10,21 +10,40 @@ import SwiftUI
 @Observable
 class PollingManager  {
     private var isPolling: Bool = false
-    let sleepTimeInSeconds = 10.0
+    let sleepTimeInSeconds = 10
     var receiveddata: String = "loading..."
     let boundary = "---------B4EBB869-A29D-4DA3-B962-6F23FE749076"
-    let username = "KwablahAwadzi"
-    let password = "yyAuTS6LLQ2ofXRUZxUnTCPc06EEb+Q7TJDcujU89bA="
-    
+    let accra = "KwablahAwadzi"
+    let zanzibar = "yyAuTS6LLQ2ofXRUZxUnTCPc06EEb+Q7TJDcujU89bA="
+    var bearerToken: String = ""
+    var isLoggedIn: Bool = false
     
     func startPolling() {
         guard !isPolling else { return }
         isPolling = true
         
+        
+        
         Task {
             
-          await login()
+          if isLoggedIn == false {
+              print("logging in...")
+              await login()
+              print("bearer token: \(self.bearerToken)")
+              if !self.bearerToken.isEmpty {
+                  print("logged in")
+                  self.isLoggedIn = true
+              } else {
+                  print("problems logging in. quitting")
+                  return
+              }
+            }
             
+            while isPolling {
+                await fetchNetowrkData()
+                try await Task.sleep(for: .seconds(sleepTimeInSeconds))
+            }
+                      
         }
     }
     
@@ -38,6 +57,7 @@ class PollingManager  {
          let intermediaryBoundary = Data("\r\n--\(boundary)\r\n".utf8)
          let closingBoundary = Data("\r\n--\(boundary)--\r\n".utf8)
          let initialBoundaryString = "\(boundary)"
+         var result: String = ""
         
          
         
@@ -56,10 +76,10 @@ class PollingManager  {
          var data = Data()
          data.append(initialBoundary)
          data.append(Data("Content-Disposition: form-data; name=\"username\"\r\n\r\n".utf8))
-         data.append(username.data(using: .utf8)!)
+         data.append(accra.data(using: .utf8)!)
          data.append(intermediaryBoundary)
          data.append(Data("Content-Disposition: form-data; name=\"password\"\r\n\r\n".utf8))
-         data.append(password.data(using: .utf8)!)
+         data.append(zanzibar.data(using: .utf8)!)
          data.append(closingBoundary)
          request.setValue(data.count.description, forHTTPHeaderField: "Content-Length")
          
@@ -68,6 +88,46 @@ class PollingManager  {
          request.httpBody = data
         
          request.debugPrint()
+         
+         do {
+             let (resultdata,response) =  try await URLSession.shared.data(for: request)
+             guard let httpResponse = response as? HTTPURLResponse else { return }
+             print("status code: \(httpResponse.statusCode)")
+                          
+             self.receiveddata =  String(data: resultdata, encoding: .utf8) ?? "no data"
+             if httpResponse.statusCode == 200 {
+                 self.bearerToken = self.receiveddata
+             }
+  
+         } catch {
+             print(error)
+         }
+      
+         
+
+         
+               
+    }
+    
+    private func fetchNetowrkData() async {
+        let dataURL = "https://publicapi.smartg8.com/project/upcoming"
+        var result: String = ""
+       
+               
+        var request = URLRequest(url: URL(string: dataURL)!)
+        request.httpMethod = "GET"
+        
+        request.setValue("publicapi.smartg8.com", forHTTPHeaderField: "Host")
+        request.setValue(bearerToken, forHTTPHeaderField: "Bearer")
+        request.setValue("application/json,text/json,text/x-json,text/javascript,application/xml,text/xml", forHTTPHeaderField: "Accept")
+        request.setValue("showsec", forHTTPHeaderField: "Company")
+        request.setValue("RestSharp/106.12.0.0", forHTTPHeaderField: "User-Agent")
+        request.setValue("Keep-Alive", forHTTPHeaderField: "Connection")
+        request.setValue("gzip, deflate", forHTTPHeaderField: "Accept-Encoding")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+         
+        request.debugPrint()
+        
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
             if let error = error {
                 print("Error: \(error)")
@@ -78,14 +138,9 @@ class PollingManager  {
             
             if let data = data {
                 self.receiveddata =  String(data: data, encoding: .utf8) ?? "no data"
-                print("DATA IS: \(self.receiveddata)")
-            }
+           }
         }
         task.resume()
-        
-    }
-    
-    private func fetchNetowrkData() {
         
     }
     

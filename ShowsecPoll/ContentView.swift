@@ -13,7 +13,9 @@ struct ContentView: View {
         VStack {
 
             Text("Latest Server Status").font(.headline)
-            Text(pollManager.receiveddata).font(.body)
+            ScrollView {
+                Text(pollManager.receiveddata).font(.body)
+            }
         }
         .padding()
         .onAppear {
