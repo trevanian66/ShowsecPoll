@@ -8,14 +8,20 @@
 import SwiftUI
 
 struct ContentView: View {
+    @State private var pollManager = PollingManager()
     var body: some View {
         VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+
+            Text("Latest Server Status").font(.headline)
+            Text(pollManager.receiveddata).font(.body)
         }
         .padding()
+        .onAppear {
+            pollManager.startPolling()
+        }
+        .onDisappear {
+            pollManager.stopPolling()
+        }
     }
 }
 
