@@ -62,7 +62,10 @@ class PollingManager  {
          data.append(password.data(using: .utf8)!)
          data.append(closingBoundary)
          request.setValue(data.count.description, forHTTPHeaderField: "Content-Length")
-       //  request.httpBody = data
+         
+       //  let body: [String: String] = ["username" : username, "password" : password]
+       //  request.httpBody = try? JSONSerialization.data(withJSONObject: body, options: [])
+         request.httpBody = data
         
          request.debugPrint()
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
