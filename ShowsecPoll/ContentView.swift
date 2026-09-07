@@ -9,12 +9,13 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var pollManager = PollingManager()
+    let logFont = Font.system(size: 22, weight: .medium, design: .default)
     var body: some View {
         VStack {
 
-            Text("Latest Server Status").font(.headline)
+            Text("Latest Server Status").font(logFont).fontWeight(.bold)
             ScrollView {
-                Text(pollManager.receiveddata).font(.body)
+                Text(pollManager.receiveddata).font(logFont)
             }
         }
         .padding()
