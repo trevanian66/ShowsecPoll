@@ -10,13 +10,21 @@ import SwiftUI
 @Observable
 class PollingManager  {
     private var isPolling: Bool = false
-    let sleepTimeInSeconds = 10
+ 
     var receiveddata: String = "loading..."
     let boundary = "---------B4EBB869-A29D-4DA3-B962-6F23FE749076"
     let accra = "KwablahAwadzi"
     let zanzibar = "yyAuTS6LLQ2ofXRUZxUnTCPc06EEb+Q7TJDcujU89bA="
     var bearerToken: String = ""
     var isLoggedIn: Bool = false
+    var jobsList: JobDataList?
+    var isRefreshing: Bool = false
+    
+    var sleepTimeInSeconds: Int
+    
+    init(sleepTimeInSeconds: Int) {
+        self.sleepTimeInSeconds = sleepTimeInSeconds
+    }
     
     func startPolling() {
         guard !isPolling else { return }
@@ -25,22 +33,23 @@ class PollingManager  {
         
         
         Task {
-            
-          if isLoggedIn == false {
-              print("logging in...")
-              await login()
-              print("bearer token: \(self.bearerToken)")
-              if !self.bearerToken.isEmpty {
-                  print("logged in")
-                  self.isLoggedIn = true
-              } else {
-                  print("problems logging in. quitting")
-                  return
-              }
-            }
-            
-            while isPolling {
+         while isPolling {
+             
+              if isLoggedIn == false {
+                  print("logging in...")
+                  await login()
+                  print("bearer token: \(self.bearerToken)")
+                  if !self.bearerToken.isEmpty {
+                      print("logged in")
+                      self.isLoggedIn = true
+                  } else {
+                      print("problems logging in. quitting")
+                      return
+                  }
+                }
+                isRefreshing = true
                 await fetchNetowrkData()
+                isRefreshing = false
                 try await Task.sleep(for: .seconds(sleepTimeInSeconds))
             }
                       
@@ -57,8 +66,7 @@ class PollingManager  {
          let intermediaryBoundary = Data("\r\n--\(boundary)\r\n".utf8)
          let closingBoundary = Data("\r\n--\(boundary)--\r\n".utf8)
          let initialBoundaryString = "\(boundary)"
-         var result: String = ""
-        
+               
          
         
          var request = URLRequest(url: URL(string: loginURLString)!)
@@ -111,7 +119,7 @@ class PollingManager  {
     
     private func fetchNetowrkData() async {
         let dataURL = "https://publicapi.smartg8.com/project/upcoming"
-        var result: String = ""
+        
        
                
         var request = URLRequest(url: URL(string: dataURL)!)
@@ -128,20 +136,31 @@ class PollingManager  {
          
         request.debugPrint()
         
-        let task = URLSession.shared.dataTask(with: request) { data, response, error in
-            if let error = error {
-                print("Error: \(error)")
-                return
-            }
+                
+        do {
+            let (resultdata,response) =  try await URLSession.shared.data(for: request)
             guard let httpResponse = response as? HTTPURLResponse else { return }
             print("status code: \(httpResponse.statusCode)")
+                         
+            self.receiveddata =  String(data: resultdata, encoding: .utf8) ?? "no data"
+            if httpResponse.statusCode == 200 {
             
-            if let data = data {
-                self.receiveddata =  String(data: data, encoding: .utf8) ?? "no data"
-           }
+                do {
+                    let json =  try JSONDecoder().decode(JobDataList.self, from: resultdata)
+                    self.jobsList = json
+                    self.jobsList!.Data[0].debugLog()
+                } catch {
+                    print(error)
+                    fatalError(error.localizedDescription)
+                }
+             } else if httpResponse.statusCode == 401 {
+                print("Unauthorized")
+                self.isLoggedIn = false
+            }
+ 
+        } catch {
+            print(error)
         }
-        task.resume()
-        
     }
     
 }
