@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import AudioToolbox
 
 struct ContentView: View {
     @State private var pollManager = PollingManager()
@@ -178,10 +179,12 @@ struct ContentView: View {
     
     func flagJob(job: JobData) -> Bool{
       //  print("CITIES: \(citiesToFlag) JOB: \(job.City)")
+        let soundToPlay: SystemSoundID = 1304
         if  !citiesToFlag.isEmpty &&  citiesToFlag.lowercased().contains(job.City.lowercased().trimmingCharacters(in:.whitespacesAndNewlines)) && !alreadySeenJobs.contains(job.Id){
             
             if !flaggedJobs.contains(job.Id) {
                 flaggedJobs.append(job.Id)
+                AudioServicesPlaySystemSound(soundToPlay)
             }
          
             return true
