@@ -10,11 +10,13 @@ import SwiftUI
 struct JobDetailsItemView: View {
     
     @State private var jobDetailsItem: JobData
+    @State private var backgroundColor: Color
     let formFont = Font.system(size: 20, weight: .medium, design: .default)
     
     
-    init(jobDetailsItem: JobData) {
+    init(jobDetailsItem: JobData, backgroundColor: Color = .white) {
         self.jobDetailsItem = jobDetailsItem
+        self.backgroundColor = backgroundColor
     }
     
     var body: some View {
@@ -25,6 +27,15 @@ struct JobDetailsItemView: View {
                     .fontWeight(.bold)
                     .padding(.leading, 20)
                 Spacer()
+            }
+            
+            
+            HStack {
+                Text("\(jobDetailsItem.Venue)")
+                    .font(formFont)
+                    .padding(.leading, 20)
+                Spacer()
+                
             }
             
             HStack {
@@ -54,6 +65,7 @@ struct JobDetailsItemView: View {
            
             
         }
+        .background(backgroundColor)
     }
 }
 

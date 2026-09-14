@@ -20,12 +20,9 @@ class PollingManager  {
     var jobsList: JobDataList?
     var isRefreshing: Bool = false
     
-    var sleepTimeInSeconds: Int
+    var sleepTimeInSeconds: Int = 30
     
-    init(sleepTimeInSeconds: Int) {
-        self.sleepTimeInSeconds = sleepTimeInSeconds
-    }
-    
+       
     func startPolling() {
         guard !isPolling else { return }
         isPolling = true
@@ -134,6 +131,7 @@ class PollingManager  {
         request.setValue("gzip, deflate", forHTTPHeaderField: "Accept-Encoding")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
          
+
         request.debugPrint()
         
                 
@@ -148,7 +146,7 @@ class PollingManager  {
                 do {
                     let json =  try JSONDecoder().decode(JobDataList.self, from: resultdata)
                     self.jobsList = json
-                    self.jobsList!.Data[0].debugLog()
+                  //  self.jobsList!.Data[0].debugLog()
                 } catch {
                     print(error)
                     fatalError(error.localizedDescription)
