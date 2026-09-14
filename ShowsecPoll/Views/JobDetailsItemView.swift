@@ -11,12 +11,14 @@ struct JobDetailsItemView: View {
     
     @State private var jobDetailsItem: JobData
     @State private var backgroundColor: Color
+    @State private var alreadySeen: Bool
     let formFont = Font.system(size: 20, weight: .medium, design: .default)
     
     
-    init(jobDetailsItem: JobData, backgroundColor: Color = .white) {
+    init(jobDetailsItem: JobData, backgroundColor: Color = .white, alreadySeen: Bool = false) {
         self.jobDetailsItem = jobDetailsItem
         self.backgroundColor = backgroundColor
+        self.alreadySeen = alreadySeen
     }
     
     var body: some View {
@@ -27,6 +29,11 @@ struct JobDetailsItemView: View {
                     .fontWeight(.bold)
                     .padding(.leading, 20)
                 Spacer()
+                if  alreadySeen  {
+                    Image(systemName: "checkmark.circle.fill")
+                        .resizable()
+                        .frame(width: 20, height: 20, alignment: .leading)
+                }
             }
             
             
@@ -45,6 +52,8 @@ struct JobDetailsItemView: View {
                     .fontWeight(.bold)
                     .padding(.leading, 20)
                 Spacer()
+                
+      
                 
             }
             

@@ -32,7 +32,7 @@ struct ContentView: View {
             ForEach($jobItems, id: \.self) { $jobItem in
                 let isflagged = flagJob(job: jobItem)
                 let color = isflagged ? Color.pink.opacity(0.7) : Color.white
-                JobDetailsItemView(jobDetailsItem: jobItem, backgroundColor: color)
+                JobDetailsItemView(jobDetailsItem: jobItem, backgroundColor: color, alreadySeen: alreadySeenJobs.contains(jobItem.Id))
                .id(jobdetaisId)
                .onTapGesture {
                    if flaggedJobs.contains(jobItem.Id) && !alreadySeenJobs.contains(jobItem.Id) {
