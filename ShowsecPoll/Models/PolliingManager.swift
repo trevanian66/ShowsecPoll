@@ -57,6 +57,35 @@ class PollingManager  {
         isPolling = false
     }
     
+    
+    
+    func getJobs() async -> JobDataList? {
+        
+              
+      if isLoggedIn == false {
+          print("logging in...")
+          await login()
+          print("bearer token: \(self.bearerToken)")
+          if !self.bearerToken.isEmpty {
+              print("logged in")
+              self.isLoggedIn = true
+          } else {
+              print("problems logging in. quitting")
+              
+          }
+        }
+                
+        await fetchNetowrkData()
+       
+        return self.jobsList
+        
+    }
+    
+    
+    
+    
+    
+    
      func login() async {
          let loginURLString = "https://publicapi.smartg8.com/Authentication/JWTLogin"
          let initialBoundary = Data("--\(boundary)\r\n".utf8)
