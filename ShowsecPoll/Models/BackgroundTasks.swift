@@ -24,6 +24,9 @@ func sheculeJobRefresh() {
 
 func refreshJobs() async {
     
+    
+    await sendDebugMessage() 
+    
     let pollManager = PollingManager()
 
      if let joblist = await pollManager.getJobs() {
@@ -56,5 +59,17 @@ func refreshJobs() async {
          }
         
     }
+    
+}
+
+func sendDebugMessage() async {
+    
+   
+    let notificationDate = Calendar.current.date(byAdding: .second, value: 10, to: .now)!
+    let notificationTitle = "Hello there!".uppercased()
+    let notificationBody = "I'm ruuning in the background. Yippee! " + Date().formatted()
+    let id: String = "notificationdegugfromshowsecpoll"
+    
+    _ = await scheduleNotification(title: notificationTitle, body: notificationBody, identifier: id, date: notificationDate)
     
 }
