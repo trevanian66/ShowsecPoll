@@ -25,7 +25,7 @@ func sheculeJobRefresh() {
 func refreshJobs() async {
     
     
-    await sendDebugMessage() 
+    await sendDebugMessage()
     
     let pollManager = PollingManager()
 
@@ -56,6 +56,7 @@ func refreshJobs() async {
                  AudioServicesPlaySystemSound(1304)
              }
          
+              await sendDebugMessage2(jobcount: joblist.Data.count)
          }
         
     }
@@ -69,6 +70,19 @@ func sendDebugMessage() async {
     let notificationTitle = "Hello there!".uppercased()
     let notificationBody = "I'm ruuning in the background. Yippee! " + Date().formatted()
     let id: String = "notificationdegugfromshowsecpoll"
+    
+    _ = await scheduleNotification(title: notificationTitle, body: notificationBody, identifier: id, date: notificationDate)
+    
+}
+
+
+func sendDebugMessage2(jobcount: Int) async {
+    
+   
+    let notificationDate = Calendar.current.date(byAdding: .second, value: 10, to: .now)!
+    let notificationTitle = "Hello there!".uppercased()
+    let notificationBody = "found \(jobcount) jobs. Yeah! " + Date().formatted()
+    let id: String = "notificationdegugfromshowsecpolljobcount"
     
     _ = await scheduleNotification(title: notificationTitle, body: notificationBody, identifier: id, date: notificationDate)
     
