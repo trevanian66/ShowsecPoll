@@ -27,6 +27,8 @@ func refreshJobs() async {
     
     await sendDebugMessage()
     
+    sheculeJobRefresh() 
+    
     let pollManager = PollingManager()
 
      if let joblist = await pollManager.getJobs() {
